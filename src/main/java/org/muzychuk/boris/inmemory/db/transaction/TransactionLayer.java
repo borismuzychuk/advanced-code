@@ -68,6 +68,7 @@ public class TransactionLayer {
         }
     }
 
+    // todo сделать один метод collectStatistics(Map<String, String> changes)
     private void collectTransactionStatistics(Map<String, Optional<String>> changes) {
         Set<String> values = new HashSet<>();
         for (Map.Entry<String, Optional<String>> keyValue : changes.entrySet()) {
