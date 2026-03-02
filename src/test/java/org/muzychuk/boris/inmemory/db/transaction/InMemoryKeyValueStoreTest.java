@@ -62,6 +62,20 @@ class InMemoryKeyValueStoreTest {
     }
 
     @Test
+    void nestedTransactionWithRollback() {
+        keyValueStore.set("a", "10");
+        keyValueStore.begin();
+        keyValueStore.set("a", "20");
+        assertEquals("20", keyValueStore.get("a"));
+        keyValueStore.begin();
+        keyValueStore.set("a", "30");
+        assertEquals("30", keyValueStore.get("a"));
+        keyValueStore.rollback();
+        keyValueStore.commit();
+        assertEquals("20", keyValueStore.get("a"));
+    }
+
+    @Test
     void whenCommitWithoutStartTransaction_ThenThrowsIllegalStateException() {
         keyValueStore.set("key", "value");
         assertThrows(IllegalStateException.class, keyValueStore::commit);
