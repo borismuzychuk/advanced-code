@@ -47,7 +47,10 @@ public class InMemoryKeyValueStore implements KeyValueStore {
 
     @Override
     public void commit() {
-
+        TransactionLayer currTransaction = transactionLayers.pop();
+        if (transactionLayers.isEmpty()) {
+            currTransaction.mergeTo(keyValueStorage);
+        }
     }
 
     @Override

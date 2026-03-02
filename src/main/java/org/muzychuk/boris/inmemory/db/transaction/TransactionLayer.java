@@ -17,4 +17,11 @@ public class TransactionLayer {
     public void put(String key, String value) {
         changes.put(key, Optional.ofNullable(value));
     }
+
+    public void mergeTo(Map<String, String> changes) {
+        for (String key : this.changes.keySet()) {
+            changes.merge(key, this.changes.get(key).get(),
+                    (old, value) -> value);
+        }
+    }
 }
