@@ -30,7 +30,7 @@ class InMemoryKeyValueStoreTest {
     }
 
     @Test
-    void transactionWithCommit() {
+    void transactionWithRollback() {
         keyValueStore.set("a", "10");
         keyValueStore.begin();
         keyValueStore.set("a", "20");
