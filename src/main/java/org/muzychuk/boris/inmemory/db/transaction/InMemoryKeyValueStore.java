@@ -47,6 +47,9 @@ public class InMemoryKeyValueStore implements KeyValueStore {
 
     @Override
     public void commit() {
+        if (transactionLayers.isEmpty()) {
+            throw new IllegalStateException("Transaction hasn't been started");
+        }
         TransactionLayer currTransaction = transactionLayers.pop();
         if (transactionLayers.isEmpty()) {
             currTransaction.mergeTo(keyValueStorage);
