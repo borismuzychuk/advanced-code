@@ -95,5 +95,22 @@ class InMemoryKeyValueStoreTest {
         assertThrows(IllegalStateException.class, keyValueStore::commit);
     }
 
+    @Test
+    void count() {
+        keyValueStore.set("a","foo");
+        keyValueStore.set("b","foo");
+        keyValueStore.set("c","bar");
+        assertEquals(2, keyValueStore.count("foo"));
+        assertEquals(1, keyValueStore.count("foo"));
+        assertEquals(0, keyValueStore.count("bar"));
+
+        keyValueStore.begin();
+        keyValueStore.delete("a");
+        assertEquals(1, keyValueStore.count("foo"));
+
+        keyValueStore.rollback();
+        assertEquals(2, keyValueStore.count("foo"));
+
+    }
 
 }
