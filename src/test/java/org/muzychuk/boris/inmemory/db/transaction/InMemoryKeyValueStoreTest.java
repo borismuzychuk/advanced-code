@@ -101,8 +101,8 @@ class InMemoryKeyValueStoreTest {
         keyValueStore.set("b","foo");
         keyValueStore.set("c","bar");
         assertEquals(2, keyValueStore.count("foo"));
-        assertEquals(1, keyValueStore.count("foo"));
-        assertEquals(0, keyValueStore.count("bar"));
+        assertEquals(1, keyValueStore.count("bar"));
+        assertEquals(0, keyValueStore.count("baz"));
 
         keyValueStore.begin();
         keyValueStore.delete("a");
