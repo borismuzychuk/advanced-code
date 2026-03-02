@@ -24,7 +24,8 @@ class InMemoryKeyValueStoreTest {
     @Test
     void delete() {
         keyValueStore.set("key", "value");
-        keyValueStore.delete("key");
+        boolean result = keyValueStore.delete("key");
+        assertTrue(result);
         assertNull(keyValueStore.get("key"));
     }
 
