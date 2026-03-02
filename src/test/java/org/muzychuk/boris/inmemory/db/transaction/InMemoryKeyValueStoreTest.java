@@ -38,4 +38,13 @@ class InMemoryKeyValueStoreTest {
         assertEquals("10", keyValueStore.get("a"));
     }
 
+    @Test
+    void transactionWithCommit() {
+        keyValueStore.set("a", "10");
+        keyValueStore.begin();
+        keyValueStore.set("a", "20");
+        keyValueStore.commit();
+        assertEquals("20", keyValueStore.get("a"));
+    }
+
 }
