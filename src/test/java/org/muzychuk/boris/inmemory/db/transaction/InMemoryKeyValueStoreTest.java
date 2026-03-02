@@ -59,5 +59,11 @@ class InMemoryKeyValueStoreTest {
         assertEquals("30", keyValueStore.get("a"));
     }
 
+    @Test
+    void whenCommitWithoutStartTransaction_ThenThrowsIllegalStateException() {
+        keyValueStore.set("key", "value");
+        assertThrows(IllegalStateException.class, keyValueStore::commit);
+    }
+
 
 }
