@@ -21,4 +21,11 @@ class InMemoryKeyValueStoreTest {
         assertEquals("value 2", keyValueStore.get("key"));
     }
 
+    @Test
+    void delete() {
+        keyValueStore.set("key", "value");
+        keyValueStore.delete("key");
+        assertNull(keyValueStore.get("key"));
+    }
+
 }
