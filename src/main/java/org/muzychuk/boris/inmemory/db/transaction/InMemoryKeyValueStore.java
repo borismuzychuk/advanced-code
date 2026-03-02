@@ -1,15 +1,24 @@
 package org.muzychuk.boris.inmemory.db.transaction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class InMemoryKeyValueStore implements KeyValueStore {
+
+    private final Map<String, String> keyValueStorage;
+
+    public InMemoryKeyValueStore() {
+        this.keyValueStorage = new HashMap<>();
+    }
 
     @Override
     public void set(String key, String value) {
-
+        keyValueStorage.put(key, value);
     }
 
     @Override
     public String get(String key) {
-        return "";
+        return keyValueStorage.get(key);
     }
 
     @Override
