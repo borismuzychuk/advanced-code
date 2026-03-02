@@ -24,4 +24,15 @@ public class TransactionLayer {
                     (old, value) -> value);
         }
     }
+
+    public void mergeTo(TransactionLayer transaction) {
+        for (String key : transaction.changes.keySet()) {
+            transaction.changes.merge(key, changes.get(key),
+                    (old, value) -> value);
+        }
+    }
+
+    public String get(String key) {
+        return changes.get(key).orElseGet(null);
+    }
 }

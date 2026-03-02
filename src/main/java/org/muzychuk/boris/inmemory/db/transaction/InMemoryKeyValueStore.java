@@ -27,7 +27,11 @@ public class InMemoryKeyValueStore implements KeyValueStore {
 
     @Override
     public String get(String key) {
-        return keyValueStorage.get(key);
+        if (transactionLayers.isEmpty()) {
+            return keyValueStorage.get(key);
+        } else {
+            return transactionLayers.getFirst().get(key);
+        }
     }
 
     @Override
@@ -53,6 +57,8 @@ public class InMemoryKeyValueStore implements KeyValueStore {
         TransactionLayer currTransaction = transactionLayers.pop();
         if (transactionLayers.isEmpty()) {
             currTransaction.mergeTo(keyValueStorage);
+        } else {
+            currTransaction.mergeTo(transactionLayers.peek());
         }
     }
 
