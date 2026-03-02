@@ -110,7 +110,16 @@ class InMemoryKeyValueStoreTest {
 
         keyValueStore.rollback();
         assertEquals(2, keyValueStore.count("foo"));
+    }
 
+    @Test
+    void countWithoutTransactions() {
+        keyValueStore.set("a","foo");
+        keyValueStore.set("b","foo");
+        keyValueStore.set("c","bar");
+        assertEquals(2, keyValueStore.count("foo"));
+        assertEquals(1, keyValueStore.count("bar"));
+        assertEquals(0, keyValueStore.count("baz"));
     }
 
 }
