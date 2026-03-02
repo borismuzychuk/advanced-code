@@ -1,19 +1,28 @@
 package org.muzychuk.boris.inmemory.db.transaction;
 
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class InMemoryKeyValueStore implements KeyValueStore {
 
     private final Map<String, String> keyValueStorage;
+    private final Deque<TransactionLayer> transactionLayers;
 
     public InMemoryKeyValueStore() {
         this.keyValueStorage = new HashMap<>();
+        this.transactionLayers = new LinkedList<>();
     }
 
     @Override
     public void set(String key, String value) {
-        keyValueStorage.put(key, value);
+        if (transactionLayers.isEmpty()) {
+            keyValueStorage.put(key, value);
+        } else {
+            TransactionLayer transaction = transactionLayers.peek();
+            transaction.put(key, value);
+        }
     }
 
     @Override
@@ -33,7 +42,7 @@ public class InMemoryKeyValueStore implements KeyValueStore {
 
     @Override
     public void begin() {
-
+        transactionLayers.push(new TransactionLayer());
     }
 
     @Override
@@ -43,6 +52,8 @@ public class InMemoryKeyValueStore implements KeyValueStore {
 
     @Override
     public void rollback() {
-
+        if (!transactionLayers.isEmpty()) {
+            transactionLayers.pop();
+        }
     }
 }

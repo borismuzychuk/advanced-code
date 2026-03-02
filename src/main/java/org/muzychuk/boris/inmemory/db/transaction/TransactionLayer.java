@@ -14,4 +14,7 @@ public class TransactionLayer {
         this.changes = new HashMap<>();
     }
 
+    public void put(String key, String value) {
+        changes.put(key, Optional.ofNullable(value));
+    }
 }
