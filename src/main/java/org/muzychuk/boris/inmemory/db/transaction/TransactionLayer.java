@@ -27,6 +27,7 @@ public class TransactionLayer {
         collectStatistics(changes);
     }
 
+    // TODO сделать один метод mergeTo(Map<String, String> changes)
     public void mergeTo(TransactionLayer transaction) {
         for (String key : transaction.changes.keySet()) {
             transaction.changes.merge(key, changes.get(key),
