@@ -37,7 +37,6 @@ public class InMemoryKeyValueStore implements KeyValueStore {
         }
     }
 
-    // TODO сделать транзакционным
     @Override
     public boolean delete(String key) {
         if (transactionLayers.isEmpty()) {
