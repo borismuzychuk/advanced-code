@@ -34,6 +34,7 @@ public class InMemoryKeyValueStore implements KeyValueStore {
         }
     }
 
+    // TODO сделать транзакционным
     @Override
     public boolean delete(String key) {
         return keyValueStorage.remove(key) != null;
