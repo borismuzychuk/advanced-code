@@ -117,8 +117,12 @@ class InMemoryKeyValueStoreTest {
         keyValueStore.set("a","foo");
         keyValueStore.set("b","foo");
         keyValueStore.set("c","bar");
+        keyValueStore.set("d","test");
+        keyValueStore.set("e","test");
+        keyValueStore.delete("d");
         assertEquals(2, keyValueStore.count("foo"));
         assertEquals(1, keyValueStore.count("bar"));
+        assertEquals(1, keyValueStore.count("test"));
         assertEquals(0, keyValueStore.count("baz"));
     }
 
