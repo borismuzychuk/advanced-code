@@ -47,4 +47,17 @@ class InMemoryKeyValueStoreTest {
         assertEquals("20", keyValueStore.get("a"));
     }
 
+    @Test
+    void nestedTransactionWithCommit() {
+        keyValueStore.set("a", "10");
+        keyValueStore.begin();
+        keyValueStore.set("a", "20");
+        keyValueStore.begin();
+        keyValueStore.set("a", "30");
+        keyValueStore.commit();
+        keyValueStore.commit();
+        assertEquals("30", keyValueStore.get("a"));
+    }
+
+
 }
