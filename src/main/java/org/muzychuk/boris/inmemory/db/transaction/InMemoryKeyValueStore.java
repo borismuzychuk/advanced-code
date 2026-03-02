@@ -23,7 +23,7 @@ public class InMemoryKeyValueStore implements KeyValueStore {
 
     @Override
     public boolean delete(String key) {
-        return false;
+        return keyValueStorage.remove(key) != null;
     }
 
     @Override
