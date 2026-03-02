@@ -57,13 +57,21 @@ public class InMemoryKeyValueStore implements KeyValueStore {
         if (transactionLayers.isEmpty()) {
             Integer count = valueStatistics.get(value);
             return count == null ? 0 : count;
+        } else {
+            return transactionLayers.peek().count(value);
         }
-        return 0;
     }
 
     @Override
     public void begin() {
-        transactionLayers.push(new TransactionLayer());
+        TransactionLayer transaction = new TransactionLayer();
+        if (transactionLayers.isEmpty()) {
+            transactionLayers.push(transaction);
+            transaction.mergeWith(keyValueStorage);
+        } else {
+            transactionLayers.peek().mergeTo(transaction);
+            transactionLayers.push(transaction);
+        }
     }
 
     @Override

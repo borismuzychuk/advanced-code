@@ -1,21 +1,22 @@
 package org.muzychuk.boris.inmemory.db.transaction;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class TransactionLayer {
 
     // Хранит изменения текущей транзакции
     // key → Optional<String> (Optional.empty() = DELETE)
     private final Map<String, Optional<String>> changes;
+    private Map<String, Integer> valueStatistics;
 
     TransactionLayer() {
         this.changes = new HashMap<>();
+        this.valueStatistics = new HashMap<>();
     }
 
     public void put(String key, String value) {
         changes.put(key, Optional.ofNullable(value));
+        valueStatistics.merge(value, 1, Integer::sum);
     }
 
     public void mergeTo(Map<String, String> changes) {
@@ -23,6 +24,7 @@ public class TransactionLayer {
             changes.merge(key, this.changes.get(key).get(),
                     (old, value) -> value);
         }
+        collectStatistics(changes);
     }
 
     public void mergeTo(TransactionLayer transaction) {
@@ -30,9 +32,51 @@ public class TransactionLayer {
             transaction.changes.merge(key, changes.get(key),
                     (old, value) -> value);
         }
+        collectTransactionStatistics(transaction.changes);
     }
 
     public String get(String key) {
         return changes.get(key).orElseGet(null);
+    }
+
+    public boolean delete(String key) {
+        Optional<String> removed = changes.remove(key);
+        changes.put(key, Optional.empty());
+        removed.ifPresent(value ->
+                valueStatistics.put(value, valueStatistics.get(value) - 1));
+        return true;
+    }
+
+    public Integer count(String value) {
+        Integer count = valueStatistics.get(value);
+        return count == null ? 0 : count;
+    }
+
+    public void mergeWith(Map<String, String> changes) {
+        for (Map.Entry<String, String> keyValue : changes.entrySet()) {
+            this.changes.merge(keyValue.getKey(), Optional.ofNullable(keyValue.getValue()),
+                    (old, value) -> value);
+        }
+        collectStatistics(changes);
+    }
+
+    private void collectStatistics(Map<String, String> changes) {
+        for (Map.Entry<String, String> keyValue : changes.entrySet()) {
+            String value = keyValue.getValue();
+            valueStatistics.merge(value, 1, Integer::sum);
+        }
+    }
+
+    private void collectTransactionStatistics(Map<String, Optional<String>> changes) {
+        Set<String> values = new HashSet<>();
+        for (Map.Entry<String, Optional<String>> keyValue : changes.entrySet()) {
+            String value = keyValue.getValue().orElse(null);
+            if (value != null && values.contains(value)) {
+                valueStatistics.put(value, valueStatistics.get(value) + 1);
+            }
+            if (value != null) {
+                values.add(value);
+            }
+        }
     }
 }
