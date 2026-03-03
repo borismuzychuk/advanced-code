@@ -49,7 +49,7 @@ public class CircuitBreaker {
 
         // если статус CircuitBreakerState.OPEN,
         // то проверить waitDuration, если с момента размыкания не прошло waitDuration,
-        // то вернуть ResultType.FALLBACK, иначе сделать вызов
+        // то вернуть ResultType.FALLBACK, иначе выполнить запрос
         // и обновить метрики с учетном ответа (SUCCESS или FAILED)
         // после обновления метрик либо оставить текущий статус, либо перевести в другой
 
