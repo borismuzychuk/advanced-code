@@ -1,5 +1,6 @@
 package org.muzychuk.boris.circuit.breaker.state.impl;
 
+import org.muzychuk.boris.circuit.breaker.CircuitBreaker;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
@@ -18,8 +19,16 @@ public class CloseState implements State {
 
     @Override
     public <T> CircuitBreakerResult<T> execute(Supplier<T> action, Supplier<T> fallback, Instant now) {
-
-        return null;
+        try {
+            T result = action.get();
+            if (result != null) {
+                return CircuitBreakerResult.success(result, CircuitBreakerState.CLOSED);
+            } else {
+                return CircuitBreakerResult.fallback(fallback.get(), CircuitBreakerState.CLOSED);
+            }
+        } catch (Exception e) {
+            return CircuitBreakerResult.fallback(fallback.get(), CircuitBreakerState.CLOSED);
+        }
     }
 
     @Override
