@@ -29,7 +29,11 @@ public class CloseState implements State {
         } catch (Exception e) {
             context.getMetricsHolder().incrementFailureCount();
             open();
-            return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+            try {
+                return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+            } catch (Exception ex) {
+                return CircuitBreakerResult.rejected(context.getState().name());
+            }
         }
     }
 
