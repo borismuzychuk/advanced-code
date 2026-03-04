@@ -35,30 +35,7 @@ public class CircuitBreaker {
     public <T> CircuitBreakerResult<T> execute(Supplier<T> action,
                                                Supplier<T> fallback,
                                                Instant now) {
-        // место для кода
-
-        CircuitBreakerResult<T> result;
-        result = stateContext.execute(action, fallback, now);
-
-        // проверить текущий статус
-        // если state = CircuitBreakerState.CLOSED, то выполнить запрос
-        // и обновить метрики с учетном ответа (SUCCESS или FAILED)
-        // после обновления метрик либо оставить текущий статус, либо перевести в другой
-
-        // если статус CircuitBreakerState.OPEN,
-        // то проверить waitDuration, если с момента размыкания не прошло waitDuration,
-        // то вернуть ResultType.FALLBACK, иначе выполнить запрос
-        // и обновить метрики с учетном ответа (SUCCESS или FAILED)
-        // после обновления метрик либо оставить текущий статус, либо перевести в другой
-
-        // если статус CircuitBreakerState.HALF_OPEN,
-        // то, если currentHalfOpenCalls < maxHalfOpenCalls
-        // то выполинть запрос
-        // и обновить метрики с учетном ответа (SUCCESS или FAILED)
-        // после обновления метрик либо оставить текущий статус, либо перевести в другой
-        // иначе вернуть ResultType.FALLBACK
-
-        return result;
+        return stateContext.execute(action, fallback, now);
     }
 
     /**
