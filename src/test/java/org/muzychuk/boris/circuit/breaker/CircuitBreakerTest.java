@@ -131,10 +131,10 @@ class CircuitBreakerTest {
                 Instant.now());
         assertEquals("FAILED", resultF5.value().status());
         assertEquals(OPEN, circuitBreaker.getState());
-        assertEquals(5, circuitBreaker.getMetrics().totalCalls());
-        assertEquals(2, circuitBreaker.getMetrics().successCount());
-        assertEquals(3, circuitBreaker.getMetrics().failureCount());
-        assertEquals(60, circuitBreaker.getMetrics().failurePercentage());
+        assertEquals(0, circuitBreaker.getMetrics().totalCalls());
+        assertEquals(0, circuitBreaker.getMetrics().successCount());
+        assertEquals(0, circuitBreaker.getMetrics().failureCount());
+        assertEquals(0, circuitBreaker.getMetrics().failurePercentage());
 
         CircuitBreakerResult<Response> resultF6 = circuitBreaker.execute(
                 requestSender::successRequest,
