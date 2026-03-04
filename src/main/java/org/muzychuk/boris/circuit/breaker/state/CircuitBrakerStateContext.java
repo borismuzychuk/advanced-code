@@ -12,6 +12,8 @@ public class CircuitBrakerStateContext {
 
     private final CircuitBreakerMetricsHolder metricsHolder;
     private final CircuitBreakerConfig config;
+
+    private Instant lastSwitchStateTime;
     private State state;
 
     public CircuitBrakerStateContext(CircuitBreakerMetricsHolder metricsHolder, CircuitBreakerConfig config) {
@@ -27,6 +29,7 @@ public class CircuitBrakerStateContext {
     public void changeState(State newState) {
         this.getMetricsHolder().updateState(newState.name());
         this.state = newState;
+        this.lastSwitchStateTime = Instant.now();
     }
 
     public State getState() {
@@ -43,5 +46,9 @@ public class CircuitBrakerStateContext {
 
     public CircuitBreakerConfig getConfig() {
         return config;
+    }
+
+    public Instant getLastSwitchToTime() {
+        return lastSwitchStateTime;
     }
 }

@@ -5,6 +5,7 @@ import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
 import org.muzychuk.boris.circuit.breaker.state.State;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Supplier;
 
@@ -18,6 +19,17 @@ public class OpenState implements State {
 
     @Override
     public <T> CircuitBreakerResult<T> execute(Supplier<T> action, Supplier<T> fallback, Instant now) {
+        /*
+         проверить waitDuration,
+         если с момента размыкания не прошло waitDuration,
+         то вернуть ResultType.FALLBACK, иначе переход в HALF_OPEN
+         */
+        Duration waitDuration = context.getConfig().waitDuration();
+        Instant lastSwitchToOpenTime = context.getLastSwitchToTime();
+        if (now.toEpochMilli() - lastSwitchToOpenTime.toEpochMilli() >= waitDuration.toMillis()) {
+            halfOpen();
+            return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+        }
         return CircuitBreakerResult.fallback(fallback.get(), name());
     }
 
@@ -28,12 +40,12 @@ public class OpenState implements State {
 
     @Override
     public void close() {
-        context.changeState(new CloseState(context));
+        throw new UnsupportedOperationException("OPEN -> CLOSE is denied");
     }
 
     @Override
     public void halfOpen() {
-        throw new UnsupportedOperationException("OPEN -> HALF_OPEN is denied");
+        context.changeState(new HalfOpenState(context));
     }
 
     @Override

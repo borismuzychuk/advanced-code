@@ -21,6 +21,11 @@ public class CloseState implements State {
 
     @Override
     public <T> CircuitBreakerResult<T> execute(Supplier<T> action, Supplier<T> fallback, Instant now) {
+        /* выполнить запрос
+         обновить метрики с учетном ответа (SUCCESS или FAILED)
+         после обновления метрик либо оставить текущий статус, либо перевести в другой
+         вернуть ответ
+         */
         try {
             T response = action.get();
             context.getMetricsHolder().incrementSuccessCount();
@@ -35,13 +40,14 @@ public class CloseState implements State {
                 return CircuitBreakerResult.rejected(context.getState().name());
             }
         }
+
     }
 
     @Override
     public void open() {
         CircuitBreakerMetrics metrics = context.getMetrics();
         CircuitBreakerConfig config = context.getConfig();
-        if (config.failureThreshold() < metrics.failurePercentage()) {
+        if (config.failureThreshold() <= metrics.failurePercentage()) {
             context.changeState(new OpenState(context));
         }
     }

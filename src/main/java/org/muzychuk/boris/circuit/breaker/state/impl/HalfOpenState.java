@@ -18,6 +18,10 @@ public class HalfOpenState implements State {
 
     @Override
     public <T> CircuitBreakerResult<T> execute(Supplier<T> action, Supplier<T> fallback, Instant now) {
+         /* если currentHalfOpenCalls < maxHalfOpenCalls
+         то выполинть запрос и обновить метрики с учетном ответа (SUCCESS или FAILED)
+         после обновления метрик либо оставить текущий статус, либо перевести в другой
+         иначе вернуть ResultType.FALLBACK */
         return null;
     }
 
