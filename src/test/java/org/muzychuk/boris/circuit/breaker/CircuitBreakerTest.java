@@ -105,22 +105,22 @@ class CircuitBreakerTest {
         CircuitBreaker circuitBreaker = new CircuitBreaker(context);
         RequestSender requestSender = new RequestSender();
 
-        CircuitBreakerResult<Response> resultS1 = circuitBreaker.execute(
+        circuitBreaker.execute(
                 requestSender::successRequest,
                 () -> new Response("FAILED"),
                 Instant.now());
 
-        CircuitBreakerResult<Response> resultS2 = circuitBreaker.execute(
+        circuitBreaker.execute(
                 requestSender::successRequest,
                 () -> new Response("FAILED"),
                 Instant.now());
 
-        CircuitBreakerResult<Response> resultF1 = circuitBreaker.execute(
+        circuitBreaker.execute(
                 requestSender::failRequest,
                 () -> new Response("FAILED"),
                 Instant.now());
 
-        CircuitBreakerResult<Response> resultF4 = circuitBreaker.execute(
+        circuitBreaker.execute(
                 requestSender::failRequest,
                 () -> new Response("FAILED"),
                 Instant.now());
