@@ -3,17 +3,20 @@ package org.muzychuk.boris.circuit.breaker;
 import org.junit.jupiter.api.Test;
 import org.muzychuk.boris.circuit.breaker.config.CircuitBreakerConfig;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
+import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetrics;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetricsHolder;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetricsHolderImpl;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
+import org.muzychuk.boris.circuit.breaker.state.impl.CloseState;
+import org.muzychuk.boris.circuit.breaker.state.impl.HalfOpenState;
+import org.muzychuk.boris.circuit.breaker.state.impl.OpenState;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState.CLOSED;
-import static org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState.OPEN;
+import static org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState.*;
 
 class CircuitBreakerTest {
 
@@ -29,6 +32,7 @@ class CircuitBreakerTest {
         ));
         CircuitBrakerStateContext context = new CircuitBrakerStateContext(metricsHolder,
                 new CircuitBreakerConfig(5, 60, Duration.ofSeconds(30), 2, 2));
+        context.changeState(new CloseState(context));
         CircuitBreaker circuitBreaker = new CircuitBreaker(context);
         RequestSender requestSender = new RequestSender();
 
@@ -98,6 +102,7 @@ class CircuitBreakerTest {
         ));
         CircuitBrakerStateContext context = new CircuitBrakerStateContext(metricsHolder,
                 new CircuitBreakerConfig(5, 60, Duration.ofSeconds(30), 2, 2));
+        context.changeState(new CloseState(context));
         CircuitBreaker circuitBreaker = new CircuitBreaker(context);
         RequestSender requestSender = new RequestSender();
 
@@ -138,6 +143,85 @@ class CircuitBreakerTest {
                 Instant.now());
         assertEquals("FAILED", resultF5.value().status());
         assertEquals(OPEN, circuitBreaker.getState());
+    }
+
+    @Test
+    void whenDurationIsDone_ThenCircuitBreakerSwitchToHalfOpen() throws InterruptedException {
+        CircuitBreakerMetricsHolder metricsHolder = new CircuitBreakerMetricsHolderImpl(new CircuitBreakerMetrics(
+                OPEN,
+                4,
+                2,
+                2,
+                40,
+                0
+        ));
+        Duration waitDuration = Duration.ofSeconds(2);
+        CircuitBrakerStateContext context = new CircuitBrakerStateContext(
+                metricsHolder,
+                new CircuitBreakerConfig(5, 60, waitDuration, 2, 2)
+        );
+        context.changeState(new OpenState(context));
+        CircuitBreaker circuitBreaker = new CircuitBreaker(context);
+        RequestSender requestSender = new RequestSender();
+
+        CircuitBreakerResult<Response> result = circuitBreaker.execute(
+                requestSender::successRequest,
+                () -> new Response("FAILED"),
+                Instant.now());
+        assertEquals("FAILED", result.value().status());
+        assertEquals(OPEN, circuitBreaker.getState());
+
+        Thread.sleep(waitDuration.plusMillis(50));
+
+        result = circuitBreaker.execute(
+                requestSender::successRequest,
+                () -> new Response("FAILED"),
+                Instant.now());
+        assertEquals("FAILED", result.value().status());
+        assertEquals(HALF_OPEN, circuitBreaker.getState());
+    }
+
+    @Test
+    void whenCircuitBreakerIsHalfOpenAndHasMoreThenMaxHalOpenCalls_ThenCircuitBreakerSwitchToClose() {
+        CircuitBreakerMetricsHolder metricsHolder = new CircuitBreakerMetricsHolderImpl(new CircuitBreakerMetrics(
+                HALF_OPEN,
+                4,
+                2,
+                2,
+                40,
+                0
+        ));
+        Duration waitDuration = Duration.ofSeconds(30);
+        CircuitBrakerStateContext context = new CircuitBrakerStateContext(
+                metricsHolder,
+                new CircuitBreakerConfig(5, 60, waitDuration, 2, 2)
+        );
+        context.changeState(new HalfOpenState(context));
+        CircuitBreaker circuitBreaker = new CircuitBreaker(context);
+        RequestSender requestSender = new RequestSender();
+
+        CircuitBreakerResult<Response> result = circuitBreaker.execute(
+                requestSender::successRequest,
+                () -> new Response("FAILED"),
+                Instant.now());
+        assertEquals("SUCCESS", result.value().status());
+        assertEquals(HALF_OPEN, circuitBreaker.getState());
+        assertEquals(1, circuitBreaker.getMetrics().consecutiveSuccessesInHalfOpen());
+
+        result = circuitBreaker.execute(
+                requestSender::successRequest,
+                () -> new Response("FAILED"),
+                Instant.now());
+        assertEquals("SUCCESS", result.value().status());
+        assertEquals(HALF_OPEN, circuitBreaker.getState());
+        assertEquals(2, circuitBreaker.getMetrics().consecutiveSuccessesInHalfOpen());
+
+        result = circuitBreaker.execute(
+                requestSender::successRequest,
+                () -> new Response("FAILED"),
+                Instant.now());
+        assertEquals("SUCCESS", result.value().status());
+        assertEquals(CLOSED, circuitBreaker.getState());
 
     }
 }
