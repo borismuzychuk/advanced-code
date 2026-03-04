@@ -222,6 +222,5 @@ class CircuitBreakerTest {
                 Instant.now());
         assertEquals("SUCCESS", result.value().status());
         assertEquals(CLOSED, circuitBreaker.getState());
-
     }
 }
