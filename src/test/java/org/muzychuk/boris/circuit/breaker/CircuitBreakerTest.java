@@ -17,7 +17,7 @@ import static org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState.CLOS
 class CircuitBreakerTest {
 
     @Test
-    void execute() {
+    void whenCircuitBreakerClosed_ThenRequestIsSending() {
         CircuitBreakerMetricsHolder metricsHolder = new CircuitBreakerMetricsHolderImpl(new CircuitBreakerMetrics(
                 CLOSED,
                 0,
