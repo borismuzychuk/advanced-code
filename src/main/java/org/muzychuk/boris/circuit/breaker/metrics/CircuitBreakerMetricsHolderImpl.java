@@ -8,9 +8,12 @@ public class CircuitBreakerMetricsHolderImpl implements CircuitBreakerMetricsHol
     private int totalCalls;
     private int successCount;
     private int failureCount;
-
     private int failurePercentage;
     private int consecutiveSuccessesInHalfOpen;
+
+    public CircuitBreakerMetricsHolderImpl(CircuitBreakerState state) {
+        this.state = state;
+    }
 
     @Override
     public void updateState(CircuitBreakerState newState) {
