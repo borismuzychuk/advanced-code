@@ -21,7 +21,6 @@ public class CircuitBreaker {
 
     public CircuitBreaker(CircuitBrakerStateContext stateContext) {
         this.stateContext = stateContext;
-        stateContext.changeState(new CloseState(this.stateContext));
     }
 
     /**
