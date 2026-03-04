@@ -22,7 +22,24 @@ public class HalfOpenState implements State {
          то выполинть запрос и обновить метрики с учетном ответа (SUCCESS или FAILED)
          после обновления метрик либо оставить текущий статус, либо перевести в другой
          иначе вернуть ResultType.FALLBACK */
-        return null;
+        if (context.getMetrics().totalCalls() < context.getConfig().maxHalfOpenCalls()) {
+            try {
+                T response = action.get();
+                context.getMetricsHolder().incrementConsecutiveSuccessesInHalfOpen();
+                close();
+                return CircuitBreakerResult.success(response, context.getState().name());
+            } catch (Exception e) {
+                context.getMetricsHolder().incrementFailureCount();
+                open();
+                try {
+                    return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+                } catch (Exception ex) {
+                    return CircuitBreakerResult.rejected(context.getState().name());
+                }
+            }
+        } else {
+            return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+        }
     }
 
     @Override
@@ -32,7 +49,9 @@ public class HalfOpenState implements State {
 
     @Override
     public void close() {
-        context.changeState(new CloseState(context));
+        if (context.getConfig().successThreshold() <= context.getMetrics().consecutiveSuccessesInHalfOpen()) {
+            context.changeState(new CloseState(context));
+        }
     }
 
     @Override

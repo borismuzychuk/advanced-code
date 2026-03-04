@@ -14,11 +14,11 @@ public class CircuitBreakerMetricsHolderImpl implements CircuitBreakerMetricsHol
     public synchronized void updateState(CircuitBreakerState newState) {
         this.metrics = new CircuitBreakerMetrics(
                 newState,
-                this.metrics.totalCalls(),
-                this.metrics.successCount(),
-                this.metrics.failureCount(),
-                this.metrics.failurePercentage(),
-                this.metrics.consecutiveSuccessesInHalfOpen()
+                0,
+                0,
+                0,
+                0,
+                0
         );
     }
 
