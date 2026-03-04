@@ -3,7 +3,6 @@ package org.muzychuk.boris.circuit.breaker;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetrics;
-import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetricsHolderImpl;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
 import org.muzychuk.boris.circuit.breaker.state.impl.CloseState;
 
@@ -22,7 +21,7 @@ public class CircuitBreaker {
 
     public CircuitBreaker(CircuitBrakerStateContext stateContext) {
         this.stateContext = stateContext;
-        stateContext.changeState(new CloseState(stateContext));
+        stateContext.changeState(new CloseState(this.stateContext));
     }
 
     /**

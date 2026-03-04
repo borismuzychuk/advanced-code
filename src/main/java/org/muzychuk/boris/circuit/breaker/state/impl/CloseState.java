@@ -1,6 +1,7 @@
 package org.muzychuk.boris.circuit.breaker.state.impl;
 
 import org.muzychuk.boris.circuit.breaker.CircuitBreaker;
+import org.muzychuk.boris.circuit.breaker.config.CircuitBreakerConfig;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;

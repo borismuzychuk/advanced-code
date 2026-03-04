@@ -36,6 +36,11 @@ public class CircuitBreakerMetricsHolderImpl implements CircuitBreakerMetricsHol
     }
 
     @Override
+    public void incrementConsecutiveSuccessesInHalfOpen() {
+
+    }
+
+    @Override
     public CircuitBreakerMetrics getMetrics() {
         return new CircuitBreakerMetrics(
                 state,

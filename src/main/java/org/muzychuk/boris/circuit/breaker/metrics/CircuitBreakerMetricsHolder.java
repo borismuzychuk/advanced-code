@@ -12,5 +12,7 @@ public interface CircuitBreakerMetricsHolder {
 
     void incrementFailureCount();
 
+    void incrementConsecutiveSuccessesInHalfOpen();
+
     CircuitBreakerMetrics getMetrics();
 }
