@@ -36,7 +36,6 @@ public class CircuitBreaker {
                                                Supplier<T> fallback,
                                                Instant now) {
         // место для кода
-        // вынести
 
         CircuitBreakerResult<T> result;
         result = stateContext.execute(action, fallback, now);

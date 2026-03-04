@@ -3,7 +3,7 @@ package org.muzychuk.boris.circuit.breaker;
 import org.junit.jupiter.api.Test;
 import org.muzychuk.boris.circuit.breaker.config.CircuitBreakerConfig;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
-import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
+import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetrics;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetricsHolder;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetricsHolderImpl;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
@@ -18,7 +18,14 @@ class CircuitBreakerTest {
 
     @Test
     void execute() {
-        CircuitBreakerMetricsHolder metricsHolder = new CircuitBreakerMetricsHolderImpl(CLOSED);
+        CircuitBreakerMetricsHolder metricsHolder = new CircuitBreakerMetricsHolderImpl(new CircuitBreakerMetrics(
+                CLOSED,
+                0,
+                0,
+                0,
+                0,
+                0
+        ));
         CircuitBrakerStateContext context = new CircuitBrakerStateContext(metricsHolder,
                 new CircuitBreakerConfig(5, 60, Duration.ofSeconds(30), 2, 2));
         CircuitBreaker circuitBreaker = new CircuitBreaker(context);

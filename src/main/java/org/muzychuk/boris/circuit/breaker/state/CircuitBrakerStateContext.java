@@ -25,6 +25,7 @@ public class CircuitBrakerStateContext {
 
 
     public void changeState(State newState) {
+        this.getMetricsHolder().updateState(newState.name());
         this.state = newState;
     }
 
@@ -34,6 +35,10 @@ public class CircuitBrakerStateContext {
 
     public CircuitBreakerMetrics getMetrics() {
         return metricsHolder.getMetrics();
+    }
+
+    public CircuitBreakerMetricsHolder getMetricsHolder() {
+        return metricsHolder;
     }
 
     public CircuitBreakerConfig getConfig() {

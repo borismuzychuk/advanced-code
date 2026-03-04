@@ -4,6 +4,7 @@ import org.muzychuk.boris.circuit.breaker.CircuitBreaker;
 import org.muzychuk.boris.circuit.breaker.config.CircuitBreakerConfig;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
+import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetrics;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
 import org.muzychuk.boris.circuit.breaker.state.State;
 
@@ -21,20 +22,24 @@ public class CloseState implements State {
     @Override
     public <T> CircuitBreakerResult<T> execute(Supplier<T> action, Supplier<T> fallback, Instant now) {
         try {
-            T result = action.get();
-            if (result != null) {
-                return CircuitBreakerResult.success(result, CircuitBreakerState.CLOSED);
-            } else {
-                return CircuitBreakerResult.fallback(fallback.get(), CircuitBreakerState.CLOSED);
-            }
+            T response = action.get();
+            context.getMetricsHolder().incrementSuccessCount();
+            open();
+            return CircuitBreakerResult.success(response, context.getState().name());
         } catch (Exception e) {
-            return CircuitBreakerResult.fallback(fallback.get(), CircuitBreakerState.CLOSED);
+            context.getMetricsHolder().incrementFailureCount();
+            open();
+            return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
         }
     }
 
     @Override
     public void open() {
-        throw new UnsupportedOperationException("CLOSED -> OPEN is denied");
+        CircuitBreakerMetrics metrics = context.getMetrics();
+        CircuitBreakerConfig config = context.getConfig();
+        if (config.failureThreshold() < metrics.failurePercentage()) {
+            context.changeState(new OpenState(context));
+        }
     }
 
     @Override
@@ -44,7 +49,7 @@ public class CloseState implements State {
 
     @Override
     public void halfOpen() {
-        context.changeState(new HalfOpenState(context));
+        throw new UnsupportedOperationException("CLOSED -> OPEN is denied");
     }
 
     @Override

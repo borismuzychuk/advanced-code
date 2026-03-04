@@ -6,8 +6,6 @@ public interface CircuitBreakerMetricsHolder {
 
     void updateState(CircuitBreakerState newState);
 
-    void incrementTotalCalls();
-
     void incrementSuccessCount();
 
     void incrementFailureCount();
