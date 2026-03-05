@@ -21,7 +21,7 @@ import java.util.Map;
  * Правила округления: в копейках, округление вниз для платформы и ресторана,
  * остаток — курьеру (сумма долей должна равняться исходным чаевым).
  */
-
+// TODO использовать Chain of Responsibility
 public class TipDistributionService {
 
     // Spring инжект
