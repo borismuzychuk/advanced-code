@@ -3,6 +3,7 @@ package org.muzychuk.boris.ratelimiter;
 
 import org.muzychuk.boris.ratelimiter.domain.RateLimitResult;
 
+// TODO попробовать использовать паттерн мост
 public interface RateLimiter {
 
     /**
