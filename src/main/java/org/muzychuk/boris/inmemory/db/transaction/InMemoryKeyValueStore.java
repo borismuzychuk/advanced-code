@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+// TODO паттерн Memento
 public class InMemoryKeyValueStore implements KeyValueStore {
 
     private final Map<String, String> keyValueStorage;
