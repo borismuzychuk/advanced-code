@@ -30,7 +30,7 @@ public class OpenState extends AbstractState {
             halfOpen();
             return handleFallback(fallback, context.getState().name());
         }
-        return handleFallback(fallback, name());// CircuitBreakerResult.fallback(fallback.get(), name());
+        return handleFallback(fallback, name());
     }
 
     @Override
