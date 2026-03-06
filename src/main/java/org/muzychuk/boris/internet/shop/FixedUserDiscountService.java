@@ -25,7 +25,7 @@ public class FixedUserDiscountService implements UserDiscountService {
             BigDecimal percent = purchase.price().divide(sum);
             result.add(new Purchase(purchase.productId(),
                     purchase.price(),
-                    purchase.price().multiply(percent).setScale(2, RoundingMode.HALF_UP)
+                    purchase.price().subtract(fixedDiscount.multiply(percent)).setScale(2, RoundingMode.HALF_UP)
             ));
         }
 
