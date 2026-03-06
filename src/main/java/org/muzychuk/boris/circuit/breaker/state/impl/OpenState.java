@@ -2,14 +2,14 @@ package org.muzychuk.boris.circuit.breaker.state.impl;
 
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
+import org.muzychuk.boris.circuit.breaker.state.AbstractState;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
-import org.muzychuk.boris.circuit.breaker.state.State;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Supplier;
 
-public class OpenState implements State {
+public class OpenState extends AbstractState {
 
     private final CircuitBrakerStateContext context;
 
@@ -28,9 +28,9 @@ public class OpenState implements State {
         Instant lastSwitchToOpenTime = context.getLastSwitchToTime();
         if (now.toEpochMilli() - lastSwitchToOpenTime.toEpochMilli() >= waitDuration.toMillis()) {
             halfOpen();
-            return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+            return handleFallback(fallback, context.getState().name());
         }
-        return CircuitBreakerResult.fallback(fallback.get(), name());
+        return handleFallback(fallback, name());// CircuitBreakerResult.fallback(fallback.get(), name());
     }
 
     @Override

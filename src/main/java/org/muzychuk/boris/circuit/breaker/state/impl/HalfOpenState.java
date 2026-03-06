@@ -2,13 +2,14 @@ package org.muzychuk.boris.circuit.breaker.state.impl;
 
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
+import org.muzychuk.boris.circuit.breaker.domain.ResultType;
+import org.muzychuk.boris.circuit.breaker.state.AbstractState;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
-import org.muzychuk.boris.circuit.breaker.state.State;
 
 import java.time.Instant;
 import java.util.function.Supplier;
 
-public class HalfOpenState implements State {
+public class HalfOpenState extends AbstractState {
 
     private final CircuitBrakerStateContext context;
 
@@ -23,22 +24,17 @@ public class HalfOpenState implements State {
          после обновления метрик либо оставить текущий статус, либо перевести в другой
          иначе вернуть ResultType.FALLBACK */
         if (context.getMetrics().totalCalls() < context.getConfig().maxHalfOpenCalls()) {
-            try {
-                T response = action.get();
+            CircuitBreakerResult<T> result = handleAction(action, fallback, null);
+            if (ResultType.SUCCESS == result.type()) {
                 context.getMetricsHolder().incrementConsecutiveSuccessesInHalfOpen();
                 close();
-                return CircuitBreakerResult.success(response, context.getState().name());
-            } catch (Exception e) {
+            } else {
                 context.getMetricsHolder().incrementFailureCount();
                 open();
-                try {
-                    return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
-                } catch (Exception ex) {
-                    return CircuitBreakerResult.rejected(context.getState().name());
-                }
             }
+            return new CircuitBreakerResult<>(result.value(), result.type(), context.getState().name(), result.exception());
         } else {
-            return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
+            return handleFallback(fallback, context.getState().name());
         }
     }
 

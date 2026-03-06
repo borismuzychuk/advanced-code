@@ -1,17 +1,17 @@
 package org.muzychuk.boris.circuit.breaker.state.impl;
 
-import org.muzychuk.boris.circuit.breaker.CircuitBreaker;
 import org.muzychuk.boris.circuit.breaker.config.CircuitBreakerConfig;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerResult;
 import org.muzychuk.boris.circuit.breaker.domain.CircuitBreakerState;
+import org.muzychuk.boris.circuit.breaker.domain.ResultType;
 import org.muzychuk.boris.circuit.breaker.metrics.CircuitBreakerMetrics;
+import org.muzychuk.boris.circuit.breaker.state.AbstractState;
 import org.muzychuk.boris.circuit.breaker.state.CircuitBrakerStateContext;
-import org.muzychuk.boris.circuit.breaker.state.State;
 
 import java.time.Instant;
 import java.util.function.Supplier;
 
-public class CloseState implements State {
+public class CloseState extends AbstractState {
 
     private final CircuitBrakerStateContext context;
 
@@ -26,21 +26,14 @@ public class CloseState implements State {
          после обновления метрик либо оставить текущий статус, либо перевести в другой
          вернуть ответ
          */
-        try {
-            T response = action.get();
+        CircuitBreakerResult<T> response = handleAction(action, fallback, null);
+        if (ResultType.SUCCESS == response.type()) {
             context.getMetricsHolder().incrementSuccessCount();
-            open();
-            return CircuitBreakerResult.success(response, context.getState().name());
-        } catch (Exception e) {
+        } else {
             context.getMetricsHolder().incrementFailureCount();
-            open();
-            try {
-                return CircuitBreakerResult.fallback(fallback.get(), context.getState().name());
-            } catch (Exception ex) {
-                return CircuitBreakerResult.rejected(context.getState().name());
-            }
         }
-
+        open();
+        return new CircuitBreakerResult<>(response.value(), response.type(), context.getState().name(), response.exception());
     }
 
     @Override
